@@ -49,7 +49,7 @@ export default defineConfig(async (merge, { command, mode }) => {
       }
     },
     h5: {
-      publicPath: '/',
+      publicPath: '/s/swyt-web/',
       staticDirectory: 'static',
       output: {
         filename: 'js/[name].[hash:8].js',
