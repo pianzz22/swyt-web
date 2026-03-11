@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(find d:/workspace/kb-workspace/swyt/node_modules/.pnpm -path */taro-webpack5-runner* -name index.html)",
+      "Bash(python -c \":*)",
+      "Bash(python -c \"import openpyxl; wb = openpyxl.load_workbook\\(''d:/workspace/kb-workspace/swyt/三位一体招生表.xlsx''\\); print\\(wb.sheetnames\\)\")"
+    ]
+  }
+}
