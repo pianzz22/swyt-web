@@ -699,7 +699,7 @@ function check浙大宁波理工学院(g, sel, q) {
 
 // 18. 杭州师范大学 (折算 A=10,B=7,C=4,D=1; 各专业门槛不同)
 function check杭州师范大学(g, sel, q) {
-  if (!qualityOk(q)) return []
+  if (!qualityOk(q) || !allD(g)) return []
   var score = calcScore(g, { weights: { A: 10, B: 7, C: 4, D: 1 } })
   var res = []
   if (score >= 75) res.push({ name: '小学教育（师范）', plan: 70 })
@@ -800,18 +800,18 @@ function check温州大学(g, sel, q) {
 
 // 22. 浙江外国语学院 (A≥1 或 B以上≥6)
 function check浙江外国语学院(g, sel, q) {
-  if (!qualityOk(q)) return []
+  if (!qualityOk(q) || !allD(g)) return []
   if (cntA(g) < 1 && cntAB(g) < 6) return []
   var specs = [
     { name: '汉语言文学（师范）', plan: 15, selReq: '历史（1门）' },
     { name: '小学教育（师范）', plan: 20, selReq: '' },
-    { name: '西班牙语（中外合作办学）（旅游方向）', plan: 25, selReq: '' },
-    { name: '葡萄牙语', plan: 10, selReq: '' },
-    { name: '俄语', plan: 10, selReq: '' },
-    { name: '阿拉伯语', plan: 10, selReq: '' },
-    { name: '日语', plan: 15, selReq: '' },
-    { name: '朝鲜语', plan: 5, selReq: '' },
-    { name: '意大利语', plan: 5, selReq: '' },
+    { name: '西班牙语（中外合作办学）（旅游方向）（慎报）', plan: 25, selReq: '' },
+    { name: '葡萄牙语（慎报）', plan: 10, selReq: '' },
+    { name: '俄语（慎报）', plan: 10, selReq: '' },
+    { name: '阿拉伯语（慎报）', plan: 10, selReq: '' },
+    { name: '日语（慎报）', plan: 15, selReq: '' },
+    { name: '朝鲜语（慎报）', plan: 5, selReq: '' },
+    { name: '意大利语（慎报）', plan: 5, selReq: '' },
   ]
   return filterBySelReq(specs, sel)
 }
@@ -924,9 +924,9 @@ function check浙江越秀外国语学院(g, sel, q) {
   if (!gte(g['外语'], 'B')) return []
   if (!allD(g)) return []
   var specs = [
-    { name: '日语', plan: 8, selReq: '' },
-    { name: '朝鲜语', plan: 6, selReq: '' },
-    { name: '泰语', plan: 6, selReq: '' },
+    { name: '日语（慎报）', plan: 8, selReq: '' },
+    { name: '朝鲜语（慎报）', plan: 6, selReq: '' },
+    { name: '泰语（慎报）', plan: 6, selReq: '' },
     { name: '大数据管理与应用（中外合作）', plan: 40, selReq: '物理(1门)' },
     { name: '网络与新媒体（中外合作办学）', plan: 60, selReq: '' },
   ]

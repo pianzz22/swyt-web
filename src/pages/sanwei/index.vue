@@ -66,9 +66,19 @@
 
       <view class="sw-row sw-row--last">
         <text class="sw-row-label">综合素质评价</text>
-        <picker :range="gradeOptions" @change="onQualityChange">
+        <view class="sw-row-right">
+          <text class="sw-ph"></text>
+        </view>
+      </view>
+      <view
+        v-for="(item, idx) in qualityItems"
+        :key="'q' + idx"
+        class="sw-row sw-row--sub"
+      >
+        <text class="sw-row-label sw-row-label--indent">{{ item.name }}</text>
+        <picker :range="qualityOptions" @change="onQualityItemChange(idx, $event)">
           <view class="sw-row-right">
-            <text :class="qualityGrade ? 'sw-val' : 'sw-ph'">{{ qualityGrade || '请选择等级' }}</text>
+            <text :class="item.grade ? 'sw-val' : 'sw-ph'">{{ item.grade || '请选择等级' }}</text>
             <text class="sw-arrow">›</text>
           </view>
         </picker>
@@ -190,7 +200,13 @@ export default {
       selectedSubjects: [],
       tempSelected: [],
       foreignLang: '英语',
-      qualityGrade: '',
+      qualityOptions: ['A', 'B', 'C'],
+      qualityItems: [
+        { name: '品德表现', grade: '' },
+        { name: '运动健康', grade: '' },
+        { name: '艺术素养', grade: '' },
+        { name: '创新实践', grade: '' },
+      ],
       showModal: false,
       analyzing: false,
       showResult: false,
@@ -205,7 +221,7 @@ export default {
       return (
         this.subjects.every(function(s) { return s.grade !== '' }) &&
         this.selectedSubjects.length === 3 &&
-        this.qualityGrade !== '' &&
+        this.qualityItems.every(function(q) { return q.grade !== '' }) &&
         this.foreignLang !== '' && this.foreignLang !== '其他'
       )
     },
@@ -216,8 +232,10 @@ export default {
         grade: this.gradeOptions[event.detail.value]
       }))
     },
-    onQualityChange(event) {
-      this.qualityGrade = this.gradeOptions[event.detail.value]
+    onQualityItemChange(idx, event) {
+      this.$set(this.qualityItems, idx, Object.assign({}, this.qualityItems[idx], {
+        grade: this.qualityOptions[event.detail.value]
+      }))
     },
     onLangChange(event) {
       this.foreignLang = this.langOptions[event.detail.value]
@@ -255,10 +273,17 @@ export default {
       var grades = {}
       this.subjects.forEach(function(s) { grades[s.key || s.name] = s.grade })
 
+      // 取4项综合素质中最低等级作为综合素质评价
+      var qOrder = ['A', 'B', 'C']
+      var worstQ = 'A'
+      this.qualityItems.forEach(function(q) {
+        if (qOrder.indexOf(q.grade) > qOrder.indexOf(worstQ)) worstQ = q.grade
+      })
+
       var student = {
         grades: grades,
         selectedSubjects: this.selectedSubjects.slice(),
-        qualityGrade: this.qualityGrade,
+        qualityGrade: worstQ,
         foreignLang: this.foreignLang,
       }
 
@@ -384,6 +409,11 @@ export default {
   width: 100PX;
   flex-shrink: 0;
   white-space: nowrap;
+}
+.sw-row-label--indent {
+  padding-left: 16PX;
+  color: #555;
+  font-size: 13PX;
 }
 
 .sw-row-right {
