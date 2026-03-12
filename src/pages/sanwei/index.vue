@@ -1,5 +1,9 @@
 <template>
   <view class="sw-page">
+    <view class="sw-page-title">
+      <view class="sw-title-line1">灵光狮子帮你算算</view>
+      <view class="sw-title-line2">今年三一考试能报哪些学校</view>
+    </view>
     <!-- 学考等级卡片 -->
     <view class="sw-card">
       <view class="sw-card-hd">
@@ -83,8 +87,6 @@
       </view>
     </view>
 
-    <view class="sw-gap" />
-
     <!-- 提交 -->
     <view class="sw-footer">
       <view :class="['sw-submit', canSubmit ? 'sw-submit--on' : '']" @click="onSubmit">
@@ -123,7 +125,7 @@
       <view class="sw-loading-box">
         <text class="sw-loading-icon">⏳</text>
         <text class="sw-loading-txt">正在分析中...</text>
-        <text class="sw-loading-sub">根据31所高校规则逐一匹配</text>
+        <text class="sw-loading-sub">根据所有高校规则逐一匹配</text>
       </view>
     </view>
 
@@ -139,15 +141,17 @@
           <text class="sw-result-empty-sub">请检查学考成绩、选考科目或综合素质评价是否满足要求</text>
         </view>
         <scroll-view v-else scroll-y class="sw-result-scroll">
-          <text class="sw-result-count">共匹配到 {{ results.length }} 所学校</text>
-          <view v-for="(item, i) in results" :key="i" class="sw-school-block">
-            <view class="sw-school-name-row">
-              <text class="sw-school-idx">{{ i + 1 }}</text>
-              <text class="sw-school-name">{{ item.school }}</text>
-            </view>
-            <view v-for="(major, j) in item.majors" :key="j" class="sw-major-row">
-              <text class="sw-major-dot">·</text>
-              <text class="sw-major-name">{{ major.name }}</text>
+          <view class="sw-result-inner">
+            <text class="sw-result-count">共匹配到 {{ results.length }} 所学校</text>
+            <view v-for="(item, i) in results" :key="i" class="sw-school-block">
+              <view class="sw-school-name-row">
+                <text class="sw-school-idx">{{ i + 1 }}</text>
+                <text class="sw-school-name">{{ item.school }}</text>
+              </view>
+              <view v-for="(major, j) in item.majors" :key="j" class="sw-major-row">
+                <text class="sw-major-dot">·</text>
+                <text class="sw-major-name">{{ major.name }}</text>
+              </view>
             </view>
           </view>
         </scroll-view>
@@ -175,12 +179,12 @@ export default {
         { name: '语文', grade: '' },
         { name: '数学', grade: '' },
         { name: '外语', grade: '' },
+        { name: '思想政治', key: '政治', grade: '' },
+        { name: '历史', grade: '' },
+        { name: '地理', grade: '' },
         { name: '物理', grade: '' },
         { name: '化学', grade: '' },
         { name: '生物', grade: '' },
-        { name: '政治', grade: '' },
-        { name: '历史', grade: '' },
-        { name: '地理', grade: '' },
         { name: '技术', grade: '' },
       ],
       selectedSubjects: [],
@@ -249,7 +253,7 @@ export default {
 
       // 构建 student 对象
       var grades = {}
-      this.subjects.forEach(function(s) { grades[s.name] = s.grade })
+      this.subjects.forEach(function(s) { grades[s.key || s.name] = s.grade })
 
       var student = {
         grades: grades,
@@ -267,6 +271,30 @@ export default {
         }
         self.analyzing = false
         self.showResult = true
+
+        // 上报记录
+        var body = {
+          grade_yuwen:            grades['语文'],
+          grade_shuxue:           grades['数学'],
+          grade_waiyu:            grades['外语'],
+          grade_sixiang_zhengzhi: grades['政治'],
+          grade_lishi:            grades['历史'],
+          grade_dili:             grades['地理'],
+          grade_wuli:             grades['物理'],
+          grade_huaxue:           grades['化学'],
+          grade_shengwu:          grades['生物'],
+          grade_jishu:            grades['技术'],
+          quality_grade:          student.qualityGrade,
+          selected_subjects:      student.selectedSubjects.join(','),
+          foreign_lang:           student.foreignLang,
+          matched_count:          self.results.length,
+          matched_result:         self.results,
+        }
+        fetch('https://h5.dskb.cn/champion-api/swyt/record', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }).catch(function() {}) // 上报失败不影响用户
       }, 1200)
     },
   },
@@ -279,6 +307,23 @@ export default {
   background: linear-gradient(180deg, #b3cee8 0%, #ddeaf6 120PX, #edf2f8 300PX, #edf2f8 100%);
   padding: 16PX 16PX 0;
   box-sizing: border-box;
+}
+.sw-page-title {
+  text-align: left;
+  padding: 8PX 4PX 16PX;
+}
+.sw-title-line1 {
+  font-size: 34PX;
+  font-weight: bold;
+  color: #1a3c5e;
+  line-height: 1.4;
+}
+.sw-title-line2 {
+  font-size: 22PX;
+  font-weight: bold;
+  color: #1a3c5e;
+  line-height: 1.4;
+  margin-top: 2PX;
 }
 
 .sw-card {
@@ -389,18 +434,9 @@ export default {
   line-height: 1.6;
 }
 
-.sw-gap { height: 100PX; }
-
 /* 底部 */
 .sw-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  padding: 12PX 20PX 30PX;
-  box-shadow: 0 -1PX 6PX rgba(0, 0, 0, 0.06);
-  z-index: 10;
+  padding: 20PX 0 40PX;
 }
 
 .sw-submit {
@@ -567,8 +603,11 @@ export default {
 .sw-result-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 12PX 20PX;
   height: 55vh;
+}
+
+.sw-result-inner {
+  padding: 12PX 20PX;
 }
 
 .sw-result-count {

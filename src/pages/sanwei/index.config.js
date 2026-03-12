@@ -1,5 +1,5 @@
 export default definePageConfig({
-  navigationBarTitleText: '三位一体',
+  navigationBarTitleText: '灵光狮子三一考试考生报名助手',
   navigationBarBackgroundColor: '#a8caef',
   navigationBarTextStyle: 'black',
 })
